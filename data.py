@@ -17,6 +17,7 @@ df_test_y = pd.read_csv('football_test_y.csv')
 #print(df_train_x)
 df_train_complete = pd.concat([df_train_x,df_train_y],axis = 1)
 print(df_train_complete.groupby("Interest").mean())
+plt.matshow(df_train_complete)
 
 
 
