@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
+import operator
 
 from sklearn.feature_selection import RFE
 from sklearn.linear_model import LogisticRegression
@@ -12,6 +13,7 @@ import statsmodels.api as sm
 from sklearn.linear_model import LogisticRegression
 from sklearn import metrics
 from sklearn.metrics import confusion_matrix
+from collections import OrderedDict
 
 
 df_train_x = pd.read_csv('football_train_x.csv')
@@ -24,6 +26,7 @@ print(df_train_complete.groupby("Interest").mean())
 plt.matshow(df_train_complete)
 
 #---------------------Linear Regression------------
+r_squared = {}
 for name in df_train_x.columns:
     X = df_train_x[name]
     y = df_train_y['FTG']
@@ -33,13 +36,26 @@ for name in df_train_x.columns:
     predictions = model.predict(X) # make the predictions by the model
 
     # Save R^2 in vaiable
-    r_squared = {}
     r_squared[name] = model.rsquared
 
     # Print out the statistics
     #print(model.summary())
+    r_squared_ordered = OrderedDict(sorted(r_squared.items(), key=lambda x: x[1]))
+for key in r_squared_ordered:
+    print(str(key) + ": " + str(r_squared[key]))
+
+X = df_train_x[max(r_squared.items(), key=operator.itemgetter(1))[0]] ## X usually means our input variables (or independent variables)
+y = df_train_y["Intercept"] ## Y usually means our output/dependent variable
+X = sm.add_constant(X) ## let's add an intercept (beta_0) to our model
+
+# Note the difference in argument order
+model = sm.OLS(y, X).fit() ## sm.OLS(output, input)
+predictions = model.predict(X)
+
+# Print out the statistics
+print(model.summary())
+
 #--------------------------------------------------
-print(r_squared)
 
 #---------------------Logarithmic Regression------------
 os = SMOTE(random_state=0)
