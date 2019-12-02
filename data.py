@@ -14,6 +14,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn import metrics
 from sklearn.metrics import confusion_matrix
 from collections import OrderedDict
+from sklearn.linear_model import LinearRegression
 
 
 df_train_x = pd.read_csv('football_train_x.csv')
@@ -45,7 +46,7 @@ for key in r_squared_ordered:
     print(str(key) + ": " + str(r_squared[key]))
 
 X = df_train_x[max(r_squared.items(), key=operator.itemgetter(1))[0]] ## X usually means our input variables (or independent variables)
-y = df_train_y["Intercept"] ## Y usually means our output/dependent variable
+y = df_train_y["Interest"] ## Y usually means our output/dependent variable
 X = sm.add_constant(X) ## let's add an intercept (beta_0) to our model
 
 # Note the difference in argument order
@@ -54,6 +55,9 @@ predictions = model.predict(X)
 
 # Print out the statistics
 print(model.summary())
+#print(LinearRegression().fit(X, y).score(X, y))
+
+#Tähän tarvii plottaa toi data scatterina ja sitten predictions linearinen
 
 #--------------------------------------------------
 
@@ -77,7 +81,7 @@ rfe = rfe.fit(os_data_X, os_data_y.values.ravel())
 #print(rfe.support_)
 #print(rfe.ranking_)
 #print((df_train_x.T[rfe.support_]).T)
-df_train_x_rfe = (df_train_x.T[rfe.support_]).T
+df_train_x_rfe = (df_train_x.T[rfe.support_]).T.drop(columns=['HTR'])
 df_test_x_rfe = (df_test_x.T[rfe.support_]).T.drop(columns=['HTR'])
 
 logit_model=sm.Logit(df_train_y["Interest"],df_train_x_rfe)
