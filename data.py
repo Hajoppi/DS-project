@@ -31,7 +31,8 @@ print(df_train_complete.groupby("Interest").mean())
 #plt.matshow(df_train_complete)
 
 #--------------------- RFE features for FTG------------
-target_value="FTG"
+target_value="Interest"
+
 y = df_train_y[target_value]
 X = df_train_x
 #no of features
@@ -177,7 +178,36 @@ plt.show()
 
 
 #--------------------------------------------------
+#---------------------Correlation matrix features for FTG------------
+cor = df_train_complete.corr()
+np.fill_diagonal(cor.values, np.nan)
+plt.matshow(cor)
+#plt.show()
+cor_target = abs(cor[target_value])
+relevant_features = cor_target[cor_target>0.25]
+print("Relevant features by correlation matrix")
+print(relevant_features)
 
+
+
+#--------------------- Embeded method features for FTG------------
+
+y = df_train_y[target_value]
+X = df_train_x
+reg = LassoCV()
+reg.fit(X, y)
+print("Best alpha using built-in LassoCV: %f" % reg.alpha_)
+print("Best score using built-in LassoCV: %f" %reg.score(X,y))
+coef = pd.Series(reg.coef_, index = X.columns)
+
+print("Lasso picked " + str(sum(coef != 0)) + " variables and eliminated the other " +  str(sum(coef == 0)) + " variables")
+
+imp_coef = coef.sort_values()
+import matplotlib
+matplotlib.rcParams['figure.figsize'] = (8.0, 10.0)
+imp_coef.plot(kind = "barh")
+plt.title("Feature importance using Lasso Model")
+#plt.show()
 #---------------------Logarithmic Regression------------
 os = SMOTE(random_state=0)
 columns = df_train_x.columns
@@ -212,34 +242,3 @@ print('Accuracy of logistic regression classifier on test set: {:.2f}'.format(lo
 confusion_matrix = confusion_matrix(df_test_y["Interest"], y_pred)
 print(confusion_matrix)
 #------------------------------------------------------
-target_value = "Interest"
-#---------------------Correlation matrix features for FTG------------
-cor = df_train_complete.corr()
-np.fill_diagonal(cor.values, np.nan)
-plt.matshow(cor)
-#plt.show()
-cor_target = abs(cor[target_value])
-relevant_features = cor_target[cor_target>0.25]
-print("Relevant features by correlation matrix")
-print(relevant_features)
-
-
-
-#--------------------- Embeded method features for FTG------------
-
-y = df_train_y[target_value]
-X = df_train_x
-reg = LassoCV()
-reg.fit(X, y)
-print("Best alpha using built-in LassoCV: %f" % reg.alpha_)
-print("Best score using built-in LassoCV: %f" %reg.score(X,y))
-coef = pd.Series(reg.coef_, index = X.columns)
-
-print("Lasso picked " + str(sum(coef != 0)) + " variables and eliminated the other " +  str(sum(coef == 0)) + " variables")
-
-imp_coef = coef.sort_values()
-import matplotlib
-matplotlib.rcParams['figure.figsize'] = (8.0, 10.0)
-imp_coef.plot(kind = "barh")
-plt.title("Feature importance using Lasso Model")
-#plt.show()
