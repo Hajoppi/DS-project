@@ -129,6 +129,7 @@ plt.plot(y_pred-df_test_y[["FTG"]].values)
 #plt.xticks(())
 #plt.yticks(())
 plt.show()
+print("MSE: ",metrics.mean_squared_error(df_test_y['FTG'],y_pred))
 
 #---------------------Linear Regression------------
 r_squared = {}
